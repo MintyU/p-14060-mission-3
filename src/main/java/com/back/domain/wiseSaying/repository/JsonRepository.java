@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,6 +39,50 @@ public class JsonRepository implements WiseSayingRepository {
     public boolean deleteById(int id) {
         // 명언을 ID로 삭제하고 성공 여부를 반환
         return wiseSayings.remove(id) != null;
+    }
+
+    @Override
+    public void flush(String filePath) {
+        try {
+            // lastId.txt 파일에 마지막 ID 저장
+            Path lastIdPath = Path.of(filePath + "/lastId.txt");
+            Files.writeString(lastIdPath, String.valueOf(lastId));
+
+            // 각 명언을 개별 JSON 파일로 저장
+            for (WiseSaying wiseSaying : wiseSayings.values()) {
+                Path wiseSayingPath = Path.of(filePath + "/" + wiseSaying.getId() + ".json");
+                String wiseSayingJson = String.format("{\"id\":%d,\"quote\":\"%s\",\"author\":\"%s\"}",
+                        wiseSaying.getId(),
+                        wiseSaying.getQuote(),
+                        wiseSaying.getAuthor());
+                Files.writeString(wiseSayingPath, wiseSayingJson);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        // 모든 데이터를 data.json이라는 이름의 파일로 저장 Stream 사용
+        try {
+            Path dataPath = Path.of(filePath + "/data.json");
+            StringBuilder sb = new StringBuilder();
+            sb.append("[\n");
+            for (WiseSaying wiseSaying : wiseSayings.values()) {
+                String wiseSayingJson = String.format("  {\"id\":%d,\"quote\":\"%s\",\"author\":\"%s\"},\n",
+                        wiseSaying.getId(),
+                        wiseSaying.getQuote(),
+                        wiseSaying.getAuthor());
+                sb.append(wiseSayingJson);
+            }
+            if (!wiseSayings.isEmpty()) {
+                sb.setLength(sb.length() - 2); // 마지막 쉼표와 줄바꿈 제거
+                sb.append("\n");
+            }
+            sb.append("]");
+            Files.writeString(dataPath, sb.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+
+        }
+
     }
 
     public void loadFromFile(String filePath) {
@@ -77,4 +120,6 @@ public class JsonRepository implements WiseSayingRepository {
             throw new RuntimeException(e);
         }
     }
+
+
 }
