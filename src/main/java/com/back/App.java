@@ -31,7 +31,7 @@ public class App {
             } else if (cmd.startsWith("수정")) {
                 wiseSayingController.actionModify(cmd);
             } else if (cmd.startsWith("삭제")) {
-
+                wiseSayingController.actionDelete(cmd);
             } else {
                 System.out.println("알 수 없는 명령입니다.");
             }

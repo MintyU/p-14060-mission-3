@@ -48,4 +48,24 @@ public class WiseSayingController {
             System.out.printf("%d번 명언이 수정되었습니다.\n", id);
         }
     }
+
+    public void actionDelete(String cmd) {
+        String[] parts = cmd.split("\\?", 2);
+        if (parts.length < 2) {
+            System.out.println("명령어 형식이 올바르지 않습니다.");
+            return;
+        }
+        String[] paramParts = parts[1].split("=", 2);
+        if (paramParts.length < 2 || !paramParts[0].equals("id")) {
+            System.out.println("id 파라미터가 올바르지 않습니다.");
+            return;
+        }
+        int id = Integer.parseInt(paramParts[1]);
+        boolean deleted = wiseSayingService.delete(id);
+        if (deleted) {
+            System.out.printf("%d번 명언이 삭제되었습니다.\n", id);
+        } else {
+            System.out.printf("%d번 명언은 존재하지 않습니다.\n", id);
+        }
+    }
 }
