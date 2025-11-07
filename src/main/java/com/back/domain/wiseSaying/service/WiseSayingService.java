@@ -7,11 +7,12 @@ public class WiseSayingService {
     private final JsonRepository repo = new JsonRepository("db/wiseSaying");
 
     // 명언 추가
-    public void add(String quote, String author) {
+    public WiseSaying add(String quote, String author) {
         int id = repo.nextId();
         WiseSaying ws = new WiseSaying(id, quote, author);
         repo.save(ws);
         repo.flush("db/wiseSaying");
+        return ws;
     }
     // 명언 수정 (존재하는 경우 수정하고 true 반환, 없으면 false 반환)
     public boolean update(int id, String quote, String author) {

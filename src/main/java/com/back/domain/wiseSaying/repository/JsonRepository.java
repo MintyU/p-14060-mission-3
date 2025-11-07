@@ -122,10 +122,10 @@ public class JsonRepository implements WiseSayingRepository {
                 // 명언 파일이 존재하는 경우 Json 파일을 읽어서 명언 객체로 변환
                 if (Files.exists(wiseSayingPath)) {
                     String wiseSayingJson = Files.readString(wiseSayingPath).trim();
-                    String[] parts = wiseSayingJson.split("\",\"");
-                    int id = Integer.parseInt(parts[0].replace("{\"id\":", ""));
-                    String quote = parts[1].replace("quote\":\"", "");
-                    String author = parts[2].replace("author\":\"", "").replace("\"}", "");
+                    String[] parts = wiseSayingJson.replace("{", "").replace("}", "").replace("\"", "").split(",");
+                    int id = Integer.parseInt(parts[0].split(":")[1]);
+                    String quote = parts[1].split(":")[1];
+                    String author = parts[2].split(":")[1];
                     WiseSaying wiseSaying = new WiseSaying(id, quote, author);
                     wiseSayings.put(id, wiseSaying);
                 }
