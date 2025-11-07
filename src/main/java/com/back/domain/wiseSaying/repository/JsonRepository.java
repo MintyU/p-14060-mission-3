@@ -13,6 +13,7 @@ public class JsonRepository implements WiseSayingRepository {
 
     private final Map<Integer, WiseSaying> wiseSayings = new LinkedHashMap<>();
     private static int lastId = 0;
+    private boolean isDirty = false;
 
     public JsonRepository(String filePath) {
         loadFromFile(filePath);
@@ -27,6 +28,7 @@ public class JsonRepository implements WiseSayingRepository {
     public void save(WiseSaying entity) {
         // 명언을 맵에 저장
         wiseSayings.put(entity.getId(), entity);
+        isDirty = true;
     }
 
     @Override
@@ -38,11 +40,16 @@ public class JsonRepository implements WiseSayingRepository {
     @Override
     public boolean deleteById(int id) {
         // 명언을 ID로 삭제하고 성공 여부를 반환
-        return wiseSayings.remove(id) != null;
+        boolean removed = wiseSayings.remove(id) != null;
+        if (removed) {
+            isDirty = true;
+        }
+        return removed;
     }
 
     @Override
     public void flush(String filePath) {
+        if (!isDirty) return;
         try {
             // lastId.txt 파일에 마지막 ID 저장
             Path lastIdPath = Path.of(filePath + "/lastId.txt");
@@ -51,25 +58,19 @@ public class JsonRepository implements WiseSayingRepository {
             // 각 명언을 개별 JSON 파일로 저장
             for (WiseSaying wiseSaying : wiseSayings.values()) {
                 Path wiseSayingPath = Path.of(filePath + "/" + wiseSaying.getId() + ".json");
-                String wiseSayingJson = String.format("{\"id\":%d,\"quote\":\"%s\",\"author\":\"%s\"}",
-                        wiseSaying.getId(),
-                        wiseSaying.getQuote(),
-                        wiseSaying.getAuthor());
+                String wiseSayingJson = String.format("{\"id\":%d,\"quote\":\"%s\",\"author\":\"%s\"}", wiseSaying.getId(), wiseSaying.getQuote(), wiseSaying.getAuthor());
                 Files.writeString(wiseSayingPath, wiseSayingJson);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        // 모든 데이터를 data.json이라는 이름의 파일로 저장 Stream 사용
+        // 모든 데이터를 data.json이라는 이름의 파일로 저장
         try {
             Path dataPath = Path.of(filePath + "/data.json");
             StringBuilder sb = new StringBuilder();
             sb.append("[\n");
             for (WiseSaying wiseSaying : wiseSayings.values()) {
-                String wiseSayingJson = String.format("  {\"id\":%d,\"quote\":\"%s\",\"author\":\"%s\"},\n",
-                        wiseSaying.getId(),
-                        wiseSaying.getQuote(),
-                        wiseSaying.getAuthor());
+                String wiseSayingJson = String.format("  {\"id\":%d,\"quote\":\"%s\",\"author\":\"%s\"},\n", wiseSaying.getId(), wiseSaying.getQuote(), wiseSaying.getAuthor());
                 sb.append(wiseSayingJson);
             }
             if (!wiseSayings.isEmpty()) {
@@ -80,9 +81,22 @@ public class JsonRepository implements WiseSayingRepository {
             Files.writeString(dataPath, sb.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
-
+        }
+        // 존재하지 않는 ID의 파일들을 삭제
+        try {
+            for (int i = 1; i <= lastId; i++) {
+                if (!wiseSayings.containsKey(i)) {
+                    Path wiseSayingPath = Path.of(filePath + "/" + i + ".json");
+                    if (Files.exists(wiseSayingPath)) {
+                        Files.delete(wiseSayingPath);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
+        isDirty = false;
     }
 
     public void loadFromFile(String filePath) {
