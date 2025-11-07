@@ -1,11 +1,13 @@
 package com.back;
 
+import com.back.domain.system.controller.SystemController;
 import com.back.domain.wiseSaying.controller.WiseSayingController;
 
 import java.util.Scanner;
 
 public class App {
     WiseSayingController wiseSayingController = new WiseSayingController();
+    SystemController systemController = new SystemController();
     private final Scanner scanner;
 
     public App() {
@@ -22,8 +24,8 @@ public class App {
             String cmd = scanner.nextLine().trim();
 
             if (cmd.equals("종료")) {
-                System.out.println("프로그램을 종료합니다.");
-                break;
+                systemController.actionExit();
+                return;
             } else if (cmd.startsWith("등록")) {
                 wiseSayingController.actionWrite();
             } else if (cmd.startsWith("목록")) {
