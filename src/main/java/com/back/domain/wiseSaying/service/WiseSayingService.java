@@ -3,6 +3,8 @@ package com.back.domain.wiseSaying.service;
 import com.back.domain.wiseSaying.entity.WiseSaying;
 import com.back.domain.wiseSaying.repository.JsonRepository;
 
+import java.util.Optional;
+
 public class WiseSayingService {
     private final JsonRepository repo = new JsonRepository("db/wiseSaying");
 
@@ -35,5 +37,9 @@ public class WiseSayingService {
             repo.flush("db/wiseSaying");
         }
         return deleted;
+    }
+
+    public Optional<WiseSaying> getWiseSayingById(int id) {
+        return repo.findById(id);
     }
 }

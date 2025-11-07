@@ -26,11 +26,10 @@ public class App {
                 break;
             } else if (cmd.startsWith("등록")) {
                 wiseSayingController.actionWrite();
-
             } else if (cmd.startsWith("목록")) {
 
             } else if (cmd.startsWith("수정")) {
-
+                wiseSayingController.actionModify(cmd);
             } else if (cmd.startsWith("삭제")) {
 
             } else {
