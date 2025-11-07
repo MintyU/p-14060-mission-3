@@ -3,6 +3,7 @@ package com.back.domain.wiseSaying.service;
 import com.back.domain.wiseSaying.entity.WiseSaying;
 import com.back.domain.wiseSaying.repository.JsonRepository;
 
+import java.util.Map;
 import java.util.Optional;
 
 public class WiseSayingService {
@@ -41,5 +42,14 @@ public class WiseSayingService {
 
     public Optional<WiseSaying> getWiseSayingById(int id) {
         return repo.findById(id);
+    }
+
+
+    public Map<Integer, WiseSaying> getAllWiseSayings() {
+        return repo.findAll();
+    }
+
+    public int getLastId() {
+        return repo.getLastId();
     }
 }

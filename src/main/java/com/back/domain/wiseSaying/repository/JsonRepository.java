@@ -136,4 +136,11 @@ public class JsonRepository implements WiseSayingRepository {
     }
 
 
+    public Map<Integer, WiseSaying> findAll() {
+        return wiseSayings;
+    }
+
+    public int getLastId() {
+        return lastId;
+    }
 }

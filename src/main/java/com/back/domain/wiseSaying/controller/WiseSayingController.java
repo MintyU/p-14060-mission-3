@@ -4,6 +4,7 @@ package com.back.domain.wiseSaying.controller;
 import com.back.domain.wiseSaying.entity.WiseSaying;
 import com.back.domain.wiseSaying.service.WiseSayingService;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -67,5 +68,19 @@ public class WiseSayingController {
         } else {
             System.out.printf("%d번 명언은 존재하지 않습니다.\n", id);
         }
+    }
+
+    public void actionList() {
+        System.out.println("번호 / 작가 / 명언");
+        System.out.println("---------------------");
+        Map<Integer, WiseSaying> wiseSayings = wiseSayingService.getAllWiseSayings();
+        for (int i = wiseSayingService.getLastId(); i >= 1; i--) {
+            WiseSaying ws = wiseSayings.getOrDefault(i, null);
+            if (ws == null) {
+                continue;
+            }
+            System.out.printf("%d / %s / %s\n", ws.getId(), ws.getAuthor(), ws.getQuote());
+        }
+
     }
 }
